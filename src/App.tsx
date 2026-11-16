@@ -22,7 +22,7 @@ import {LocationPage} from './components/public/LocationPage';
 import {PublicFooter} from './components/public/PublicFooter';
 import {PublicHeader} from './components/public/PublicHeader';
 import {ServicesPage} from './components/public/ServicesPage';
-import {INITIAL_PHARMACY_SETTINGS} from './data/nmhData';
+import {INITIAL_PHARMACY_SETTINGS} from './constants/storeInfo';
 import {
   ApiError,
   deleteAdminRecord,

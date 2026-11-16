@@ -1,6 +1,6 @@
 import React from 'react';
 import {ArrowRight, Clock, ExternalLink, MapPin, Phone, ShieldCheck} from 'lucide-react';
-import {NMH_IMAGES, NMH_OPERATING_HOURS, NMH_SERVICES} from '../../data/nmhData';
+import {NMH_IMAGES, NMH_OPERATING_HOURS, NMH_SERVICES} from '../../constants/storeInfo';
 import {PharmacySettings, PublicRoute} from '../../types/nmh';
 import {SafeImage} from '../common/SafeImage';
 

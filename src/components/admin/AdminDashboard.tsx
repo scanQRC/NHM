@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {Archive, Eye, FolderKanban, Printer, Upload} from 'lucide-react';
-import {formatArchiveMonthLabel} from '../../data/nmhData';
+import {formatArchiveMonthLabel} from '../../utils/dateFormat';
 import {AdminSection, AuthenticatedAdminUser, PrescriptionRecord} from '../../types/nmh';
 import {NMHLogo} from '../common/NMHLogo';
 

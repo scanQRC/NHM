@@ -1,6 +1,6 @@
 import React from 'react';
 import {CheckCircle2, Lock, ShieldCheck} from 'lucide-react';
-import {NMH_IMAGES} from '../../data/nmhData';
+import {NMH_IMAGES} from '../../constants/storeInfo';
 import {PharmacySettings, PublicRoute} from '../../types/nmh';
 import {SafeImage} from '../common/SafeImage';
 

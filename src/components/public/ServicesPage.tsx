@@ -1,6 +1,6 @@
 import React from 'react';
 import {ArrowRight} from 'lucide-react';
-import {NMH_IMAGES, NMH_SERVICES} from '../../data/nmhData';
+import {NMH_IMAGES, NMH_SERVICES} from '../../constants/storeInfo';
 import {PublicRoute} from '../../types/nmh';
 import {SafeImage} from '../common/SafeImage';
 

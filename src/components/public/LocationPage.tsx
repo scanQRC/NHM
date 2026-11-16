@@ -1,6 +1,6 @@
 import React from 'react';
 import {Clock, ExternalLink, MapPin, Navigation, Phone} from 'lucide-react';
-import {NMH_OPERATING_HOURS} from '../../data/nmhData';
+import {NMH_OPERATING_HOURS} from '../../constants/storeInfo';
 import {PharmacySettings} from '../../types/nmh';
 
 interface LocationPageProps {

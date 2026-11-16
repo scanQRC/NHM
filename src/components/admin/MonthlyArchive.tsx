@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {Eye, FolderOpen, Printer} from 'lucide-react';
-import {formatArchiveMonthLabel} from '../../data/nmhData';
+import {formatArchiveMonthLabel} from '../../utils/dateFormat';
 import {PrescriptionRecord} from '../../types/nmh';
 import {SafeImage} from '../common/SafeImage';
 

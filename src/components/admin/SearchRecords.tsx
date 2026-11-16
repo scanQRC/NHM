@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {Eye, Printer, RotateCcw, Search} from 'lucide-react';
-import {formatArchiveMonthLabel} from '../../data/nmhData';
+import {formatArchiveMonthLabel} from '../../utils/dateFormat';
 import {PrescriptionRecord} from '../../types/nmh';
 
 interface SearchRecordsProps {
