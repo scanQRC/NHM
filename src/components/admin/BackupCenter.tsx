@@ -42,7 +42,7 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({records, settings}) =
   return (
     <div className="space-y-6">
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 space-y-2">
-        <h1 className="font-display text-xl font-bold text-[#0A192F]">Backup &amp; Export</h1>
+        <h1 className="font-display text-xl font-bold text-[#102B50]">Backup &amp; Export</h1>
         <p className="text-sm text-slate-600">
           Interface layout for exporting prescription archive indexes and managing storage backups.
         </p>
@@ -50,9 +50,9 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({records, settings}) =
 
       {/* Honest Implementation Status */}
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-[#1D4ED8] shrink-0 mt-0.5" />
+        <ShieldAlert className="w-5 h-5 text-[#1769D2] shrink-0 mt-0.5" />
         <div className="space-y-1 text-sm text-slate-600">
-          <div className="font-semibold text-[#0A192F]">
+          <div className="font-semibold text-[#102B50]">
             Backend Photo Backup Not Yet Connected
           </div>
           <p>
@@ -70,7 +70,7 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({records, settings}) =
               <Download className="w-4 h-4" />
               <span>Available in Local UI Preview</span>
             </div>
-            <h2 className="font-display text-lg font-bold text-[#0A192F]">
+            <h2 className="font-display text-lg font-bold text-[#102B50]">
               Export Session Index (JSON)
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
@@ -86,7 +86,7 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({records, settings}) =
             <button
               type="button"
               onClick={handleDownloadJsonPreview}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Download JSON Index</span>
@@ -106,7 +106,7 @@ export const BackupCenter: React.FC<BackupCenterProps> = ({records, settings}) =
               <HardDrive className="w-4 h-4" />
               <span>Planned Backend Phase</span>
             </div>
-            <h2 className="font-display text-lg font-bold text-[#0A192F]">
+            <h2 className="font-display text-lg font-bold text-[#102B50]">
               Full Photo Archive Backup &amp; Restore
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">

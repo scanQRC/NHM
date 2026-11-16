@@ -39,6 +39,7 @@ export interface PharmacySettings {
   addressLine1: string;
   addressLine2: string;
   cityStateZip: string;
+  googleMapsSearchUrl: string;
   printHeaderNote: string;
   publicSignupEnabled: false;
   ocrEnabled: false;

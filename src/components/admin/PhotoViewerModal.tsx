@@ -38,7 +38,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
         <div className="px-5 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="font-mono-tabular font-semibold text-[#1D4ED8]">
+              <span className="font-mono-tabular font-semibold text-[#1769D2]">
                 {record.recordNumber}
               </span>
               <span aria-hidden="true">·</span>
@@ -46,7 +46,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
             </div>
             <h2
               id="viewer-title"
-              className="font-display text-base sm:text-lg font-bold text-[#0A192F] truncate"
+              className="font-display text-base sm:text-lg font-bold text-[#102B50] truncate"
             >
               {record.patientName}
             </h2>
@@ -57,7 +57,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
               type="button"
               aria-label="Zoom out"
               onClick={() => setZoom((z) => Math.max(0.75, Number((z - 0.25).toFixed(2))))}
-              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#0A192F] hover:bg-slate-100 cursor-pointer"
+              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#102B50] hover:bg-slate-100 cursor-pointer"
             >
               <ZoomOut className="w-4 h-4" />
             </button>
@@ -68,7 +68,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
               type="button"
               aria-label="Zoom in"
               onClick={() => setZoom((z) => Math.min(2.5, Number((z + 0.25).toFixed(2))))}
-              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#0A192F] hover:bg-slate-100 cursor-pointer"
+              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#102B50] hover:bg-slate-100 cursor-pointer"
             >
               <ZoomIn className="w-4 h-4" />
             </button>
@@ -76,7 +76,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
               type="button"
               aria-label="Rotate 90 degrees"
               onClick={() => setRotation((r) => (r + 90) % 360)}
-              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#0A192F] hover:bg-slate-100 cursor-pointer"
+              className="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 text-[#102B50] hover:bg-slate-100 cursor-pointer"
             >
               <RotateCw className="w-4 h-4" />
             </button>
@@ -86,7 +86,7 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
                 onPrintRecord(record.id);
                 handleClose();
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg cursor-pointer min-h-[36px]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg cursor-pointer min-h-[36px]"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Sheet</span>
@@ -121,36 +121,36 @@ export const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
           </div>
 
           <div className="lg:col-span-4 bg-white border-t lg:border-t-0 lg:border-l border-slate-200 p-5 overflow-y-auto space-y-4 text-sm">
-            <h3 className="font-display text-sm font-bold text-[#0A192F]">
+            <h3 className="font-display text-sm font-bold text-[#102B50]">
               Archived Record Details
             </h3>
 
             <dl className="space-y-3 text-xs">
               <div>
                 <dt className="text-slate-500">Record Number</dt>
-                <dd className="font-mono-tabular font-semibold text-[#0A192F] mt-0.5">
+                <dd className="font-mono-tabular font-semibold text-[#102B50] mt-0.5">
                   {record.recordNumber}
                 </dd>
               </div>
               <div>
                 <dt className="text-slate-500">Patient Name</dt>
-                <dd className="font-medium text-[#0A192F] mt-0.5">{record.patientName}</dd>
+                <dd className="font-medium text-[#102B50] mt-0.5">{record.patientName}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Phone</dt>
-                <dd className="font-mono-tabular text-[#0A192F] mt-0.5">{record.phone}</dd>
+                <dd className="font-mono-tabular text-[#102B50] mt-0.5">{record.phone}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Prescribing Doctor</dt>
-                <dd className="text-[#0A192F] mt-0.5">{record.doctorName}</dd>
+                <dd className="text-[#102B50] mt-0.5">{record.doctorName}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Visit Date</dt>
-                <dd className="font-mono-tabular text-[#0A192F] mt-0.5">{record.visitDate}</dd>
+                <dd className="font-mono-tabular text-[#102B50] mt-0.5">{record.visitDate}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Logged By</dt>
-                <dd className="text-[#0A192F] mt-0.5">{record.loggedBy}</dd>
+                <dd className="text-[#102B50] mt-0.5">{record.loggedBy}</dd>
               </div>
               <div>
                 <dt className="text-slate-500">Photo Filename</dt>

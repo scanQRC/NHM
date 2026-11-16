@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {CheckCircle2, Mail, Phone, Clock} from 'lucide-react';
+import {CheckCircle2, Clock, ExternalLink, MapPin, Phone} from 'lucide-react';
 import {NMH_OPERATING_HOURS} from '../../data/nmhData';
 import {PharmacySettings} from '../../types/nmh';
 
@@ -64,21 +64,21 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
   };
 
   return (
-    <div className="bg-[#F8FAFC]">
+    <div className="bg-[#F4F7FB]">
       <section className="bg-white border-b border-slate-200">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12 lg:py-16">
           <div className="max-w-3xl space-y-4">
-            <div className="text-xs font-medium text-[#1D4ED8]">Contact National Medical Hall</div>
+            <div className="text-xs font-medium text-[#1769D2]">Contact National Medical Hall</div>
             <h1
-              className="font-display text-3xl sm:text-4xl font-bold text-[#0A192F] tracking-tight"
+              className="font-display text-3xl sm:text-4xl font-bold text-[#102B50] tracking-tight"
               style={{textWrap: 'balance'}}
             >
-              Reach our dispensing counter directly.
+              Reach our dispensing counter in Udhampur directly.
             </h1>
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-              Call us to check stock availability, inquire about cold-chain packs, or send a general
-              pharmacy message below. Please bring physical prescriptions to the counter for
-              dispensing.
+              Call us at <span className="font-semibold text-[#102B50] tabular-nums">{settings.phone}</span>{' '}
+              to check medicine availability, inquire about cold-chain storage, or send an inquiry
+              below. Please bring physical prescriptions to the counter for dispensing.
             </p>
           </div>
         </div>
@@ -90,34 +90,56 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
             {/* Left Direct Contact Details */}
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 space-y-5">
-                <h2 className="font-display text-xl font-bold text-[#0A192F]">
-                  Direct Desk Channels
+                <h2 className="font-display text-xl font-bold text-[#102B50]">
+                  {settings.pharmacyName}
                 </h2>
 
                 <div className="space-y-4 text-sm">
                   <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-[#1D4ED8] shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-[#0A192F]">Dispensary Telephone</div>
-                      <div className="text-slate-600 tabular-nums mt-0.5">{settings.phone}</div>
-                      <div className="text-xs text-slate-500 mt-0.5 tabular-nums">
-                        Urgent Line: {settings.emergencyPhone}
+                    <Phone className="w-5 h-5 text-[#1769D2] shrink-0 mt-0.5" />
+                    <div className="space-y-2">
+                      <div>
+                        <div className="font-medium text-[#102B50]">Store Phone Number</div>
+                        <div className="text-base font-semibold text-[#102B50] tabular-nums mt-0.5">
+                          {settings.phone}
+                        </div>
                       </div>
+                      <a
+                        href={`tel:${settings.phone}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#12A66A] hover:bg-[#0F8F5B] rounded-lg transition-colors min-h-[38px] tabular-nums"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Call {settings.phone}</span>
+                      </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3 pt-3 border-t border-slate-100">
-                    <Mail className="w-5 h-5 text-[#059669] shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-[#0A192F]">General Desk Email</div>
-                      <div className="text-slate-600 mt-0.5">{settings.email}</div>
+                    <MapPin className="w-5 h-5 text-[#12A66A] shrink-0 mt-0.5" />
+                    <div className="space-y-2">
+                      <div>
+                        <div className="font-medium text-[#102B50]">Store Address</div>
+                        <p className="text-slate-600 mt-0.5 leading-relaxed">
+                          {settings.addressLine1}, {settings.addressLine2}, {settings.cityStateZip}
+                        </p>
+                      </div>
+                      <a
+                        href={settings.googleMapsSearchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#102B50] bg-[#F4F7FB] hover:bg-slate-200/70 border border-slate-200 rounded-lg transition-colors min-h-[38px]"
+                      >
+                        <MapPin className="w-3.5 h-3.5 text-[#1769D2]" />
+                        <span>Get Directions</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                      </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3 pt-3 border-t border-slate-100">
-                    <Clock className="w-5 h-5 text-[#0A192F] shrink-0 mt-0.5" />
+                    <Clock className="w-5 h-5 text-[#102B50] shrink-0 mt-0.5" />
                     <div className="w-full">
-                      <div className="font-medium text-[#0A192F] mb-2">Counter Hours</div>
+                      <div className="font-medium text-[#102B50] mb-2">Counter Hours</div>
                       <div className="space-y-1.5">
                         {NMH_OPERATING_HOURS.map((row) => (
                           <div
@@ -125,7 +147,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                             className="flex items-center justify-between text-xs text-slate-600 gap-2"
                           >
                             <span>{row.day}</span>
-                            <span className="font-mono-tabular text-[#0A192F]">{row.hours}</span>
+                            <span className="font-mono-tabular text-[#102B50]">{row.hours}</span>
                           </div>
                         ))}
                       </div>
@@ -140,17 +162,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
               <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8">
                 {submitted ? (
                   <div className="py-8 space-y-4">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#ECFDF5] text-[#059669]">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#ECFDF5] text-[#12A66A]">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
-                    <h2 className="font-display text-2xl font-bold text-[#0A192F]">
+                    <h2 className="font-display text-2xl font-bold text-[#102B50]">
                       Inquiry Preview Recorded
                     </h2>
                     <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-lg">
-                      Thank you, <span className="font-semibold text-[#0A192F]">{form.name}</span>.
+                      Thank you, <span className="font-semibold text-[#102B50]">{form.name}</span>.
                       Your message regarding <span className="font-medium">{form.topic}</span> has
                       been validated in this interface preview. For immediate assistance, please
-                      call <span className="font-mono-tabular">{settings.phone}</span>.
+                      call{' '}
+                      <a
+                        href={`tel:${settings.phone}`}
+                        className="font-mono-tabular font-semibold text-[#1769D2] underline"
+                      >
+                        {settings.phone}
+                      </a>
+                      .
                     </p>
                     <p className="text-xs text-slate-500">
                       Note: Server-side email dispatch will be connected when backend messaging is
@@ -160,7 +189,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       <button
                         type="button"
                         onClick={handleReset}
-                        className="px-5 py-2.5 text-sm font-semibold text-white bg-[#0A192F] hover:bg-[#1D4ED8] rounded-lg transition-colors min-h-[44px] cursor-pointer"
+                        className="px-5 py-2.5 text-sm font-semibold text-white bg-[#102B50] hover:bg-[#1769D2] rounded-lg transition-colors min-h-[44px] cursor-pointer"
                       >
                         Send Another Inquiry
                       </button>
@@ -169,7 +198,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                 ) : (
                   <form onSubmit={handleSubmit} noValidate className="space-y-5">
                     <div className="space-y-1">
-                      <h2 className="font-display text-xl font-bold text-[#0A192F]">
+                      <h2 className="font-display text-xl font-bold text-[#102B50]">
                         Patient &amp; Clinic Inquiry Form
                       </h2>
                       <p className="text-sm text-slate-500">
@@ -182,7 +211,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       <div>
                         <label
                           htmlFor="contact-name"
-                          className="block text-sm font-medium text-[#0A192F] mb-1.5"
+                          className="block text-sm font-medium text-[#102B50] mb-1.5"
                         >
                           Full Name <span className="text-red-600">*</span>
                         </label>
@@ -191,8 +220,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                           type="text"
                           value={form.name}
                           onChange={(e) => setForm({...form, name: e.target.value})}
-                          placeholder="e.g. Arvind Mehta"
-                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] min-h-[44px]"
+                          placeholder="e.g. Rajesh Sharma"
+                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1769D2] focus:border-[#1769D2] min-h-[44px]"
                         />
                         {errors.name && (
                           <p className="mt-1 text-xs text-red-600">{errors.name}</p>
@@ -202,7 +231,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       <div>
                         <label
                           htmlFor="contact-phone"
-                          className="block text-sm font-medium text-[#0A192F] mb-1.5"
+                          className="block text-sm font-medium text-[#102B50] mb-1.5"
                         >
                           Phone Number <span className="text-red-600">*</span>
                         </label>
@@ -211,8 +240,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                           type="tel"
                           value={form.phone}
                           onChange={(e) => setForm({...form, phone: e.target.value})}
-                          placeholder="e.g. 98100 12345"
-                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] min-h-[44px]"
+                          placeholder="e.g. 9419294905"
+                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1769D2] focus:border-[#1769D2] min-h-[44px]"
                         />
                         {errors.phone && (
                           <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
@@ -224,7 +253,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       <div>
                         <label
                           htmlFor="contact-email"
-                          className="block text-sm font-medium text-[#0A192F] mb-1.5"
+                          className="block text-sm font-medium text-[#102B50] mb-1.5"
                         >
                           Email Address (Optional)
                         </label>
@@ -234,7 +263,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                           value={form.email}
                           onChange={(e) => setForm({...form, email: e.target.value})}
                           placeholder="name@example.com"
-                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] min-h-[44px]"
+                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1769D2] focus:border-[#1769D2] min-h-[44px]"
                         />
                         {errors.email && (
                           <p className="mt-1 text-xs text-red-600">{errors.email}</p>
@@ -244,7 +273,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       <div>
                         <label
                           htmlFor="contact-topic"
-                          className="block text-sm font-medium text-[#0A192F] mb-1.5"
+                          className="block text-sm font-medium text-[#102B50] mb-1.5"
                         >
                           Inquiry Topic
                         </label>
@@ -252,11 +281,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                           id="contact-topic"
                           value={form.topic}
                           onChange={(e) => setForm({...form, topic: e.target.value})}
-                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8] min-h-[44px]"
+                          className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#1769D2] focus:border-[#1769D2] min-h-[44px]"
                         >
                           <option value="Medicine Availability">Medicine Availability</option>
                           <option value="Cold-Chain & Insulin">Cold-Chain &amp; Insulin</option>
-                          <option value="Medical Devices & Supplies">Medical Devices &amp; Supplies</option>
+                          <option value="Medical Devices & Supplies">
+                            Medical Devices &amp; Supplies
+                          </option>
                           <option value="Pharmacist Consultation">Pharmacist Consultation</option>
                           <option value="General Inquiry">General Inquiry</option>
                         </select>
@@ -266,7 +297,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                     <div>
                       <label
                         htmlFor="contact-message"
-                        className="block text-sm font-medium text-[#0A192F] mb-1.5"
+                        className="block text-sm font-medium text-[#102B50] mb-1.5"
                       >
                         Message <span className="text-red-600">*</span>
                       </label>
@@ -276,7 +307,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                         value={form.message}
                         onChange={(e) => setForm({...form, message: e.target.value})}
                         placeholder="Specify medicine inquiry, device question, or preferred callback time..."
-                        className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] focus:border-[#1D4ED8]"
+                        className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1769D2] focus:border-[#1769D2]"
                       />
                       {errors.message && (
                         <p className="mt-1 text-xs text-red-600">{errors.message}</p>
@@ -289,7 +320,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({settings}) => {
                       </span>
                       <button
                         type="submit"
-                        className="px-6 py-3 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[44px] whitespace-nowrap shrink-0 cursor-pointer"
+                        className="px-6 py-3 text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1256B0] rounded-lg transition-colors min-h-[44px] whitespace-nowrap shrink-0 cursor-pointer"
                       >
                         Submit Inquiry
                       </button>

@@ -35,7 +35,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
       {/* Toolbar */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="font-display text-xl font-bold text-[#0A192F]">
+          <h1 className="font-display text-xl font-bold text-[#102B50]">
             Prescription Photo Archive
           </h1>
           <p className="text-xs text-slate-500">
@@ -48,7 +48,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
             aria-label="Filter archive by month"
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            className="px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-[#0A192F] min-h-[40px]"
+            className="px-3 py-2 text-xs sm:text-sm rounded-lg border border-slate-300 bg-white text-[#102B50] min-h-[40px]"
           >
             <option value="all">All Months ({records.length})</option>
             {availableMonths.map((month) => (
@@ -64,8 +64,8 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
               onClick={() => setViewMode('grid')}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-white text-[#0A192F] shadow-sm'
-                  : 'text-slate-600 hover:text-[#0A192F]'
+                  ? 'bg-white text-[#102B50] shadow-sm'
+                  : 'text-slate-600 hover:text-[#102B50]'
               }`}
             >
               <Grid className="w-3.5 h-3.5" />
@@ -76,8 +76,8 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
               onClick={() => setViewMode('table')}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-white text-[#0A192F] shadow-sm'
-                  : 'text-slate-600 hover:text-[#0A192F]'
+                  ? 'bg-white text-[#102B50] shadow-sm'
+                  : 'text-slate-600 hover:text-[#102B50]'
               }`}
             >
               <List className="w-3.5 h-3.5" />
@@ -88,7 +88,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
           <button
             type="button"
             onClick={onOpenAddModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[40px] whitespace-nowrap cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[40px] whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Photo Record</span>
@@ -99,7 +99,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
       {/* Empty State */}
       {filteredRecords.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl p-12 text-center space-y-3">
-          <h2 className="font-display text-lg font-semibold text-[#0A192F]">
+          <h2 className="font-display text-lg font-semibold text-[#102B50]">
             No prescription photos in this filter
           </h2>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
@@ -110,7 +110,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
             <button
               type="button"
               onClick={onOpenAddModal}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
             >
               Add Prescription Photo
             </button>
@@ -127,7 +127,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewPhoto(rec)}
-                  className="w-full aspect-[4/3] bg-slate-100 overflow-hidden block relative group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+                  className="w-full aspect-[4/3] bg-slate-100 overflow-hidden block relative group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769D2]"
                 >
                   <SafeImage
                     src={rec.photoUrl}
@@ -139,12 +139,12 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
 
                 <div className="p-5 space-y-2">
                   <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
-                    <span className="font-mono-tabular font-semibold text-[#1D4ED8]">
+                    <span className="font-mono-tabular font-semibold text-[#1769D2]">
                       {rec.recordNumber}
                     </span>
                     <span className="font-mono-tabular">{rec.visitDate}</span>
                   </div>
-                  <h2 className="font-display text-base font-bold text-[#0A192F] truncate">
+                  <h2 className="font-display text-base font-bold text-[#102B50] truncate">
                     {rec.patientName}
                   </h2>
                   <div className="text-xs text-slate-600 space-y-0.5">
@@ -161,7 +161,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewPhoto(rec)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0A192F] bg-white border border-slate-200 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#102B50] bg-white border border-slate-200 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Inspect Photo</span>
@@ -172,7 +172,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
                     type="button"
                     onClick={() => onPrintRecord(rec.id)}
                     aria-label={`Print ${rec.recordNumber}`}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1D4ED8] hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1769D2] hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Print</span>
@@ -236,7 +236,7 @@ export const PrescriptionArchive: React.FC<PrescriptionArchiveProps> = ({
                         />
                       </button>
                     </td>
-                    <td className="py-2.5 px-4 font-mono-tabular text-xs font-semibold text-[#1D4ED8] whitespace-nowrap">
+                    <td className="py-2.5 px-4 font-mono-tabular text-xs font-semibold text-[#1769D2] whitespace-nowrap">
                       {rec.recordNumber}
                     </td>
                     <td className="py-2.5 px-4 font-medium text-[#0A192F] whitespace-nowrap">

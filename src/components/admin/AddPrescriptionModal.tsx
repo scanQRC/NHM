@@ -104,7 +104,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
       <div className="bg-white border border-slate-200 rounded-xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-lg">
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 id="add-rx-title" className="font-display text-lg font-bold text-[#0A192F]">
+            <h2 id="add-rx-title" className="font-display text-lg font-bold text-[#102B50]">
               Add Prescription Photo Record
             </h2>
             <p className="text-xs text-slate-500">
@@ -124,7 +124,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
         <form onSubmit={handleSubmit} noValidate className="p-6 space-y-5">
           {/* Photo Selector */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-[#0A192F]">
+            <label className="block text-sm font-medium text-[#102B50]">
               Prescription Photograph <span className="text-red-600">*</span>
             </label>
 
@@ -152,7 +152,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             ) : (
               <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center space-y-3 bg-slate-50">
                 <div className="flex justify-center gap-3">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors cursor-pointer min-h-[42px]">
+                  <label className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors cursor-pointer min-h-[42px]">
                     <Upload className="w-4 h-4" />
                     <span>Choose Photo / Camera</span>
                     <input
@@ -166,7 +166,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                   <button
                     type="button"
                     onClick={handleUseSamplePhoto}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-medium text-[#0A192F] bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer min-h-[42px]"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-medium text-[#102B50] bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer min-h-[42px]"
                   >
                     <Camera className="w-4 h-4 text-[#059669]" />
                     <span>Use Sample Photo</span>
@@ -184,7 +184,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             <div>
               <label
                 htmlFor="rx-patient"
-                className="block text-xs font-medium text-[#0A192F] mb-1.5"
+                className="block text-xs font-medium text-[#102B50] mb-1.5"
               >
                 Patient Name <span className="text-red-600">*</span>
               </label>
@@ -201,7 +201,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             <div>
               <label
                 htmlFor="rx-phone"
-                className="block text-xs font-medium text-[#0A192F] mb-1.5"
+                className="block text-xs font-medium text-[#102B50] mb-1.5"
               >
                 Phone Number <span className="text-red-600">*</span>
               </label>
@@ -220,7 +220,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             <div>
               <label
                 htmlFor="rx-doctor"
-                className="block text-xs font-medium text-[#0A192F] mb-1.5"
+                className="block text-xs font-medium text-[#102B50] mb-1.5"
               >
                 Prescribing Doctor
               </label>
@@ -237,7 +237,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             <div>
               <label
                 htmlFor="rx-date"
-                className="block text-xs font-medium text-[#0A192F] mb-1.5"
+                className="block text-xs font-medium text-[#102B50] mb-1.5"
               >
                 Prescription Visit Date
               </label>
@@ -252,7 +252,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
           </div>
 
           <div>
-            <label htmlFor="rx-notes" className="block text-xs font-medium text-[#0A192F] mb-1.5">
+            <label htmlFor="rx-notes" className="block text-xs font-medium text-[#102B50] mb-1.5">
               Counter Notes (Optional)
             </label>
             <textarea

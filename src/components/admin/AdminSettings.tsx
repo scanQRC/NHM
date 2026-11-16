@@ -21,7 +21,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({settings, onSaveSet
   return (
     <div className="space-y-6">
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6">
-        <h1 className="font-display text-xl font-bold text-[#0A192F]">Settings</h1>
+        <h1 className="font-display text-xl font-bold text-[#102B50]">Settings</h1>
         <p className="text-xs text-slate-500 mt-1">
           Configure pharmacy letterhead details for print sheets and review system policies.
           Changes apply to the current browser preview session.
@@ -33,7 +33,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({settings, onSaveSet
           onSubmit={handleSubmit}
           className="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-6 space-y-5"
         >
-          <h2 className="font-display text-lg font-bold text-[#0A192F]">
+          <h2 className="font-display text-lg font-bold text-[#102B50]">
             Pharmacy Profile &amp; Print Header
           </h2>
 
@@ -137,7 +137,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({settings, onSaveSet
           <div className="pt-2 flex items-center gap-4">
             <button
               type="submit"
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] cursor-pointer"
             >
               Save Preview Settings
             </button>
@@ -152,23 +152,23 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({settings, onSaveSet
 
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold text-[#0A192F]">
-              <Lock className="w-4 h-4 text-[#1D4ED8]" />
+            <div className="flex items-center gap-2 text-sm font-bold text-[#102B50]">
+              <Lock className="w-4 h-4 text-[#1769D2]" />
               <span>Security &amp; Archival Policy</span>
             </div>
 
             <div className="divide-y divide-slate-100 text-xs">
               <div className="py-2.5 flex items-center justify-between">
                 <span className="text-slate-600">Public Signup</span>
-                <span className="font-semibold text-[#0A192F]">Disabled (Admin Only)</span>
+                <span className="font-semibold text-[#102B50]">Disabled (Admin Only)</span>
               </div>
               <div className="py-2.5 flex items-center justify-between">
                 <span className="text-slate-600">OCR / Medicine Reading</span>
-                <span className="font-semibold text-[#0A192F]">Disabled by Requirement</span>
+                <span className="font-semibold text-[#102B50]">Disabled by Requirement</span>
               </div>
               <div className="py-2.5 flex items-center justify-between">
                 <span className="text-slate-600">Record Storage Format</span>
-                <span className="font-semibold text-[#0A192F]">Photo + Counter Metadata</span>
+                <span className="font-semibold text-[#102B50]">Photo + Counter Metadata</span>
               </div>
               <div className="py-2.5 flex items-center justify-between">
                 <span className="text-slate-600">Paid External APIs</span>
@@ -178,7 +178,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({settings, onSaveSet
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-3">
-            <div className="flex items-center gap-2 text-sm font-bold text-[#0A192F]">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#102B50]">
               <Monitor className="w-4 h-4 text-[#059669]" />
               <span>Target Browser Compatibility</span>
             </div>

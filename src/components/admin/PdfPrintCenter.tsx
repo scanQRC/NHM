@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {FileText, Printer} from 'lucide-react';
 import {formatArchiveMonthLabel} from '../../data/nmhData';
 import {PharmacySettings, PrescriptionRecord} from '../../types/nmh';
+import {NMHLogo} from '../common/NMHLogo';
 import {SafeImage} from '../common/SafeImage';
 
 interface PdfPrintCenterProps {
@@ -66,7 +67,7 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 space-y-4 no-print">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-xl font-bold text-[#0A192F]">PDF &amp; Print</h1>
+            <h1 className="font-display text-xl font-bold text-[#102B50]">PDF &amp; Print</h1>
             <p className="text-xs text-slate-500 mt-1">
               Prepare an A4 prescription photo sheet or monthly register using your browser&apos;s
               built-in Print / Save as PDF dialog (compatible with Windows 10/11, Android, and
@@ -77,7 +78,7 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#1E40AF] rounded-lg transition-colors min-h-[42px] whitespace-nowrap shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1256B0] rounded-lg transition-colors min-h-[42px] whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Print / Save as PDF</span>
@@ -91,8 +92,8 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
               onClick={() => setMode('single')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                 mode === 'single'
-                  ? 'bg-white text-[#0A192F] shadow-sm'
-                  : 'text-slate-600 hover:text-[#0A192F]'
+                  ? 'bg-white text-[#102B50] shadow-sm'
+                  : 'text-slate-600 hover:text-[#102B50]'
               }`}
             >
               Single Photo Sheet
@@ -102,8 +103,8 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
               onClick={() => setMode('monthly')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                 mode === 'monthly'
-                  ? 'bg-white text-[#0A192F] shadow-sm'
-                  : 'text-slate-600 hover:text-[#0A192F]'
+                  ? 'bg-white text-[#102B50] shadow-sm'
+                  : 'text-slate-600 hover:text-[#102B50]'
               }`}
             >
               Monthly Register
@@ -142,21 +143,19 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
 
       {/* Printable A4 Sheet Preview */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-10 max-w-[820px] mx-auto print-only-full">
-        {/* Letterhead */}
-        <div className="pb-5 border-b-2 border-[#0A192F] flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="font-display text-2xl font-bold text-[#0A192F]">
-              {settings.pharmacyName}
-            </div>
-            <div className="text-xs text-slate-600 mt-1">
+        {/* Letterhead with NMHLogo */}
+        <div className="pb-5 border-b-2 border-[#102B50] flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <NMHLogo variant="default" size="md" />
+            <div className="text-xs text-slate-600">
               {settings.addressLine1}, {settings.addressLine2}, {settings.cityStateZip}
             </div>
-            <div className="text-xs text-slate-500 mt-0.5 font-mono-tabular">
+            <div className="text-xs text-slate-500 font-mono-tabular">
               Reg: {settings.licenseNumber} · Tel: {settings.phone}
             </div>
           </div>
           <div className="text-left sm:text-right">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D4ED8]">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1769D2]">
               <FileText className="w-3.5 h-3.5" />
               <span>
                 {mode === 'single' ? 'Prescription Photo Record' : 'Monthly Archive Register'}
@@ -171,38 +170,38 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
         {mode === 'single' ? (
           activeRecord ? (
             <div className="pt-6 space-y-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm bg-[#F4F7FB] p-4 rounded-lg border border-slate-200">
                 <div>
                   <div className="text-xs text-slate-500">Record Number</div>
-                  <div className="font-mono-tabular font-semibold text-[#0A192F] mt-0.5">
+                  <div className="font-mono-tabular font-semibold text-[#102B50] mt-0.5">
                     {activeRecord.recordNumber}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Patient Name</div>
-                  <div className="font-semibold text-[#0A192F] mt-0.5">
+                  <div className="font-semibold text-[#102B50] mt-0.5">
                     {activeRecord.patientName}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Phone</div>
-                  <div className="font-mono-tabular text-[#0A192F] mt-0.5">
+                  <div className="font-mono-tabular text-[#102B50] mt-0.5">
                     {activeRecord.phone}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Prescribing Doctor</div>
-                  <div className="text-[#0A192F] mt-0.5">{activeRecord.doctorName}</div>
+                  <div className="text-[#102B50] mt-0.5">{activeRecord.doctorName}</div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Visit Date</div>
-                  <div className="font-mono-tabular text-[#0A192F] mt-0.5">
+                  <div className="font-mono-tabular text-[#102B50] mt-0.5">
                     {activeRecord.visitDate}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Archive Month</div>
-                  <div className="text-[#0A192F] mt-0.5">
+                  <div className="text-[#102B50] mt-0.5">
                     {formatArchiveMonthLabel(activeRecord.archiveMonth)}
                   </div>
                 </div>
@@ -210,12 +209,12 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
 
               {activeRecord.notes && (
                 <div className="text-xs text-slate-600">
-                  <span className="font-semibold text-[#0A192F]">Counter Notes:</span>{' '}
+                  <span className="font-semibold text-[#102B50]">Counter Notes:</span>{' '}
                   {activeRecord.notes}
                 </div>
               )}
 
-              <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+              <div className="border border-slate-200 rounded-lg overflow-hidden bg-[#F4F7FB]">
                 <SafeImage
                   src={activeRecord.photoUrl}
                   alt={`Printed prescription photo ${activeRecord.recordNumber}`}
@@ -237,7 +236,7 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
         ) : (
           <div className="pt-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold text-[#0A192F]">
+              <h2 className="font-display text-lg font-bold text-[#102B50]">
                 {formatArchiveMonthLabel(selectedMonth)} — Archived Prescription Register
               </h2>
               <span className="font-mono-tabular text-xs text-slate-600">
@@ -247,7 +246,7 @@ export const PdfPrintCenter: React.FC<PdfPrintCenterProps> = ({
 
             <table className="w-full text-left border-collapse border border-slate-200 text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-700">
+                <tr className="bg-[#F4F7FB] border-b border-slate-200 text-slate-700">
                   <th className="py-2.5 px-3 border-r border-slate-200">Record ID</th>
                   <th className="py-2.5 px-3 border-r border-slate-200">Date</th>
                   <th className="py-2.5 px-3 border-r border-slate-200">Patient Name</th>

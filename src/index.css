@@ -2,13 +2,13 @@
 
 @layer base {
   :root {
-    --nmh-navy: #0A192F;
-    --nmh-navy-mid: #112240;
-    --nmh-royal: #1D4ED8;
-    --nmh-royal-hover: #1E40AF;
-    --nmh-green: #059669;
+    --nmh-navy: #102B50;
+    --nmh-navy-mid: #163765;
+    --nmh-royal: #1769D2;
+    --nmh-royal-hover: #1256B0;
+    --nmh-green: #12A66A;
     --nmh-green-soft: #ECFDF5;
-    --nmh-bg: #F8FAFC;
+    --nmh-bg: #F4F7FB;
     --nmh-surface: #FFFFFF;
     --nmh-border: #E2E8F0;
     --nmh-text: #0F172A;

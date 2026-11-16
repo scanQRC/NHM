@@ -53,7 +53,7 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
     <div className="space-y-6">
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 space-y-5">
         <div>
-          <h1 className="font-display text-xl font-bold text-[#0A192F]">Search Records</h1>
+          <h1 className="font-display text-xl font-bold text-[#102B50]">Search Records</h1>
           <p className="text-xs text-slate-500 mt-1">
             Search archived prescription photo records by Record ID, Patient Name, Phone, Doctor, or
             visit date range.
@@ -73,7 +73,7 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Record ID, patient, phone, doctor..."
-                className="w-full pl-9 pr-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8] min-h-[42px]"
+                className="w-full pl-9 pr-3.5 py-2.5 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1769D2] min-h-[42px]"
               />
             </div>
           </div>
@@ -126,14 +126,14 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
 
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
           <span>
-            Showing <strong className="font-mono-tabular text-[#0A192F]">{results.length}</strong>{' '}
-            of <strong className="font-mono-tabular text-[#0A192F]">{records.length}</strong>{' '}
+            Showing <strong className="font-mono-tabular text-[#102B50]">{results.length}</strong>{' '}
+            of <strong className="font-mono-tabular text-[#102B50]">{records.length}</strong>{' '}
             records
           </span>
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1D4ED8] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1769D2] hover:underline cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Filters</span>
@@ -145,7 +145,7 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         {results.length === 0 ? (
           <div className="p-12 text-center space-y-2">
-            <p className="font-display text-base font-semibold text-[#0A192F]">
+            <p className="font-display text-base font-semibold text-[#102B50]">
               No matching records found
             </p>
             <p className="text-sm text-slate-500">
@@ -169,10 +169,10 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
               <tbody className="divide-y divide-slate-100 text-sm">
                 {results.map((rec) => (
                   <tr key={rec.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-2.5 px-4 font-mono-tabular text-xs font-semibold text-[#1D4ED8] whitespace-nowrap">
+                    <td className="py-2.5 px-4 font-mono-tabular text-xs font-semibold text-[#1769D2] whitespace-nowrap">
                       {rec.recordNumber}
                     </td>
-                    <td className="py-2.5 px-4 font-medium text-[#0A192F] whitespace-nowrap">
+                    <td className="py-2.5 px-4 font-medium text-[#102B50] whitespace-nowrap">
                       {rec.patientName}
                     </td>
                     <td className="py-2.5 px-4 font-mono-tabular text-xs text-slate-600 whitespace-nowrap">
@@ -192,7 +192,7 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
                         <button
                           type="button"
                           onClick={() => onViewPhoto(rec)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#0A192F] bg-slate-100 hover:bg-slate-200 rounded-md cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#102B50] bg-slate-100 hover:bg-slate-200 rounded-md cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Photo</span>
@@ -200,7 +200,7 @@ export const SearchRecords: React.FC<SearchRecordsProps> = ({
                         <button
                           type="button"
                           onClick={() => onPrintRecord(rec.id)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 rounded-md cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1769D2] bg-blue-50 hover:bg-blue-100 rounded-md cursor-pointer"
                         >
                           <Printer className="w-3.5 h-3.5" />
                           <span>Print</span>
