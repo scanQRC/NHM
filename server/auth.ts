@@ -8,14 +8,14 @@ import {
   type StaffPermissions,
   type SystemAuthConfigRow,
 } from './db.ts';
-import {isSmtpConfigured} from './mailer.ts';
+import {isMailConfigured} from './mailer.ts';
 
 export const SESSION_COOKIE_NAME = 'nmh_admin_session';
 
 const BCRYPT_ROUNDS = 12;
 const DUMMY_BCRYPT_HASH = bcrypt.hashSync(crypto.randomBytes(24).toString('hex'), BCRYPT_ROUNDS);
 
-export const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
+export const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
 export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_RESEND_COOLDOWN_MS = 30 * 1000;
 
@@ -371,5 +371,5 @@ export function getSessionCookieOptions(req: Request, maxAgeMs?: number): Cookie
 }
 
 export function isRecoveryConfigured(): boolean {
-  return isSmtpConfigured();
+  return isMailConfigured();
 }

@@ -710,11 +710,10 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
           <form onSubmit={handleLoginStep1} noValidate className="mt-6 space-y-4">
             {!setupStatus?.mailConfigured && (
               <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                SMTP email delivery is not configured yet on the server. Set{' '}
-                <code className="font-mono-tabular">SMTP_HOST</code>,{' '}
-                <code className="font-mono-tabular">SMTP_USER</code>,{' '}
-                <code className="font-mono-tabular">SMTP_PASS</code>, and{' '}
-                <code className="font-mono-tabular">SMTP_FROM</code> to send 6-digit login OTPs.
+                Resend email delivery is not configured yet on the server. Set{' '}
+                <code className="font-mono-tabular">RESEND_API_KEY</code> and{' '}
+                <code className="font-mono-tabular">RESEND_FROM_EMAIL</code> to send 6-digit
+                login OTPs.
               </div>
             )}
 

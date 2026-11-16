@@ -6,8 +6,14 @@ import path from 'node:path';
 import {after, before, test} from 'node:test';
 import express from 'express';
 import {createApp} from '../server/app.ts';
+import {OTP_TTL_MS} from '../server/auth.ts';
 import {initDatabase} from '../server/db.ts';
-import type {OutboundEmailPayload} from '../server/mailer.ts';
+import {
+  type OutboundEmailPayload,
+  ResendDeliveryError,
+  createResendMailSender,
+  isMailConfigured,
+} from '../server/mailer.ts';
 
 function extractCookieValue(setCookieHeaders: string[], name: string): string | null {
   for (const header of setCookieHeaders) {
@@ -43,7 +49,7 @@ before(async () => {
     mailConfiguredOverride: true,
     sendMail: async (payload) => {
       if (!mailEnabled) {
-        throw new Error('SMTP_DISABLED_FOR_TEST');
+        throw new Error('RESEND_DISABLED_FOR_TEST');
       }
       sentEmails.push(payload);
     },
@@ -370,4 +376,263 @@ test('5. Owner-controlled email replacement updates authorized Main Admin email 
   });
   assert.equal(newEmailLogin.status, 200);
   assert.equal(sentEmails[0].to, 'owner@nationalmedicalhall.in');
+});
+
+test('6. OTP expires after 5 minutes, resend enforces cooldown, and failed logins enforce rate-limit lockout', async () => {
+  assert.equal(OTP_TTL_MS, 5 * 60 * 1000, 'OTP TTL must be 5 minutes');
+  sentEmails = [];
+
+  const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: 'owner@nationalmedicalhall.in', password: 'OwnerPassword!2026'}),
+  });
+  assert.equal(loginRes.status, 200);
+  const loginBody = (await loginRes.json()) as {
+    challengeId: string;
+    expiresInSeconds: number;
+  };
+  assert.equal(loginBody.expiresInSeconds, 300);
+  const otp = extractSixDigitOtp(sentEmails[0]);
+
+  // Immediate resend hits 30s cooldown (429 + Retry-After)
+  const cooldownRes = await fetch(`${baseUrl}/api/auth/login/resend-otp`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({challengeId: loginBody.challengeId}),
+  });
+  assert.equal(cooldownRes.status, 429);
+  assert.ok(cooldownRes.headers.get('retry-after'));
+
+  // Force challenge expiry > 5 minutes ago in SQLite and verify OTP is rejected
+  db.prepare('UPDATE login_otp_challenges SET expires_at = ? WHERE id = ?').run(
+    Date.now() - 1000,
+    loginBody.challengeId
+  );
+  const expiredVerify = await fetch(`${baseUrl}/api/auth/login/verify-otp`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({challengeId: loginBody.challengeId, otp}),
+  });
+  assert.equal(expiredVerify.status, 401);
+
+  // Repeated invalid password attempts trigger rate-limit lockout (429)
+  let lockedStatus = 0;
+  for (let i = 0; i < 6; i++) {
+    const attempt = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': '198.51.100.42',
+      },
+      body: JSON.stringify({email: 'ratelimit-check@example.com', password: 'WrongPassword!1'}),
+    });
+    lockedStatus = attempt.status;
+    if (lockedStatus === 429) break;
+  }
+  assert.equal(lockedStatus, 429);
+  db.prepare('DELETE FROM login_attempts').run();
+});
+
+test('7. Password recovery status reports resend and delivers single-use 6-digit reset OTP', async () => {
+  const statusRes = await fetch(`${baseUrl}/api/auth/recovery-status`);
+  assert.equal(statusRes.status, 200);
+  const statusJson = (await statusRes.json()) as {configured: boolean; method: string};
+  assert.equal(statusJson.configured, true);
+  assert.equal(statusJson.method, 'resend');
+
+  sentEmails = [];
+  const reqRes = await fetch(`${baseUrl}/api/auth/recovery/request`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: 'owner@nationalmedicalhall.in'}),
+  });
+  assert.equal(reqRes.status, 200);
+  assert.equal(sentEmails.length, 1);
+  assert.equal(sentEmails[0].to, 'owner@nationalmedicalhall.in');
+
+  const resetOtp = extractSixDigitOtp(sentEmails[0]);
+
+  const confirmRes = await fetch(`${baseUrl}/api/auth/recovery/confirm`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      email: 'owner@nationalmedicalhall.in',
+      otp: resetOtp,
+      newPassword: 'UpdatedOwnerPass!2026',
+    }),
+  });
+  assert.equal(confirmRes.status, 200);
+
+  // Reusing the same recovery OTP fails
+  const replayConfirm = await fetch(`${baseUrl}/api/auth/recovery/confirm`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      email: 'owner@nationalmedicalhall.in',
+      otp: resetOtp,
+      newPassword: 'AnotherOwnerPass!2026',
+    }),
+  });
+  assert.equal(replayConfirm.status, 401);
+
+  // New password works for Step 1 login
+  sentEmails = [];
+  const newPassLogin = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: 'owner@nationalmedicalhall.in', password: 'UpdatedOwnerPass!2026'}),
+  });
+  assert.equal(newPassLogin.status, 200);
+  assert.equal(sentEmails.length, 1);
+});
+
+test('8. Resend HTTPS API client validates credentials, sender, acceptance ID, and rejects unverified senders & missing API keys', async () => {
+  const prevKey = process.env.RESEND_API_KEY;
+  const prevFrom = process.env.RESEND_FROM_EMAIL;
+  try {
+    delete process.env.RESEND_API_KEY;
+    delete process.env.RESEND_FROM_EMAIL;
+    assert.equal(isMailConfigured(), false);
+
+    // Missing API key throws RESEND_NOT_CONFIGURED (503)
+    const missingSender = createResendMailSender({apiKey: '', fromEmail: ''});
+    await assert.rejects(
+      () =>
+        missingSender({
+          to: 'scaninfoqr@gmail.com',
+          subject: 'Test',
+          text: '123456',
+          html: '<p>123456</p>',
+        }),
+      (err: unknown) => err instanceof ResendDeliveryError && err.code === 'RESEND_NOT_CONFIGURED'
+    );
+
+    // Invalid sender format throws RESEND_INVALID_SENDER
+    const badFormatSender = createResendMailSender({
+      apiKey: 're_test_dummy_key',
+      fromEmail: 'not-an-email',
+    });
+    await assert.rejects(
+      () =>
+        badFormatSender({
+          to: 'scaninfoqr@gmail.com',
+          subject: 'Test',
+          text: '123456',
+          html: '<p>123456</p>',
+        }),
+      (err: unknown) => err instanceof ResendDeliveryError && err.code === 'RESEND_INVALID_SENDER'
+    );
+
+    // Resend API 403 unverified domain response maps to RESEND_INVALID_SENDER
+    const unverifiedSender = createResendMailSender({
+      apiKey: 're_test_dummy_key',
+      fromEmail: 'noreply@unverified.example.com',
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({
+            statusCode: 403,
+            name: 'validation_error',
+            message: 'The unverified.example.com domain is not verified.',
+          }),
+          {status: 403, headers: {'Content-Type': 'application/json'}}
+        ),
+    });
+    await assert.rejects(
+      () =>
+        unverifiedSender({
+          to: 'scaninfoqr@gmail.com',
+          subject: 'Test',
+          text: '123456',
+          html: '<p>123456</p>',
+        }),
+      (err: unknown) => err instanceof ResendDeliveryError && err.code === 'RESEND_INVALID_SENDER'
+    );
+
+    // Resend API 200 without acceptance id is rejected
+    const missingIdSender = createResendMailSender({
+      apiKey: 're_test_dummy_key',
+      fromEmail: 'National Medical Hall <noreply@nationalmedicalhall.in>',
+      fetchImpl: async () =>
+        new Response(JSON.stringify({ok: true}), {
+          status: 200,
+          headers: {'Content-Type': 'application/json'},
+        }),
+    });
+    await assert.rejects(
+      () =>
+        missingIdSender({
+          to: 'scaninfoqr@gmail.com',
+          subject: 'Test',
+          text: '123456',
+          html: '<p>123456</p>',
+        }),
+      (err: unknown) => err instanceof ResendDeliveryError && err.code === 'RESEND_INVALID_RESPONSE'
+    );
+
+    // Valid Resend API response verifies Bearer header, payload, and returns id
+    let capturedAuth = '';
+    let capturedBody: Record<string, unknown> = {};
+    const validSender = createResendMailSender({
+      apiKey: 're_test_dummy_key',
+      fromEmail: 'National Medical Hall <noreply@nationalmedicalhall.in>',
+      fetchImpl: async (_url, init) => {
+        const headers = init?.headers as Record<string, string>;
+        capturedAuth = headers.Authorization;
+        capturedBody = JSON.parse(String(init?.body || '{}')) as Record<string, unknown>;
+        return new Response(JSON.stringify({id: 'email_123456'}), {
+          status: 200,
+          headers: {'Content-Type': 'application/json'},
+        });
+      },
+    });
+    const delivered = await validSender({
+      to: 'scaninfoqr@gmail.com',
+      subject: 'OTP',
+      text: '654321',
+      html: '<p>654321</p>',
+    });
+    assert.equal(capturedAuth, 'Bearer re_test_dummy_key');
+    assert.deepEqual(capturedBody.to, ['scaninfoqr@gmail.com']);
+    assert.equal(capturedBody.from, 'National Medical Hall <noreply@nationalmedicalhall.in>');
+    assert.deepEqual(delivered, {id: 'email_123456', provider: 'resend'});
+
+    // Unconfigured server app returns 503 on login and recovery, and setup-status mailConfigured=false
+    const unconfiguredApp = createApp(db);
+    const unconfServer = await new Promise<http.Server>((resolve) => {
+      const s = unconfiguredApp.listen(0, '127.0.0.1', () => resolve(s));
+    });
+    try {
+      const addr = unconfServer.address() as {port: number};
+      const unconfUrl = `http://127.0.0.1:${addr.port}`;
+
+      const sRes = await fetch(`${unconfUrl}/api/auth/setup-status`);
+      const sBody = (await sRes.json()) as {mailConfigured: boolean};
+      assert.equal(sBody.mailConfigured, false);
+
+      const lRes = await fetch(`${unconfUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: 'owner@nationalmedicalhall.in',
+          password: 'UpdatedOwnerPass!2026',
+        }),
+      });
+      assert.equal(lRes.status, 503);
+
+      const rRes = await fetch(`${unconfUrl}/api/auth/recovery/request`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: 'owner@nationalmedicalhall.in'}),
+      });
+      assert.equal(rRes.status, 503);
+    } finally {
+      await new Promise<void>((resolve) => unconfServer.close(() => resolve()));
+    }
+  } finally {
+    if (prevKey !== undefined) process.env.RESEND_API_KEY = prevKey;
+    else delete process.env.RESEND_API_KEY;
+    if (prevFrom !== undefined) process.env.RESEND_FROM_EMAIL = prevFrom;
+    else delete process.env.RESEND_FROM_EMAIL;
+  }
 });

@@ -52,7 +52,7 @@ export interface LoginOtpChallengeResponse {
 
 export interface RecoveryStatusResponse {
   configured: boolean;
-  method: 'smtp' | 'none';
+  method: 'resend' | 'none';
   message: string;
 }
 

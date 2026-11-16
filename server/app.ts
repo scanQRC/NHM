@@ -42,12 +42,13 @@ import type {
 } from './db.ts';
 import {
   type MailDispatchFn,
+  ResendDeliveryError,
   buildLoginOtpEmail,
   buildOwnerTransferOtpEmail,
   buildPasswordResetOtpEmail,
   buildStaffInviteEmail,
-  createSmtpMailSender,
-  isSmtpConfigured,
+  createResendMailSender,
+  isMailConfigured,
 } from './mailer.ts';
 
 interface AuthenticatedRequest extends Request {
@@ -106,11 +107,11 @@ export function createApp(
   const app = express();
   app.set('trust proxy', 1);
 
-  const sendMail: MailDispatchFn = options.sendMail || createSmtpMailSender();
+  const sendMail: MailDispatchFn = options.sendMail || createResendMailSender();
   const isMailAvailable = () =>
     typeof options.mailConfiguredOverride === 'boolean'
       ? options.mailConfiguredOverride
-      : isSmtpConfigured();
+      : isMailConfigured();
 
   // Security headers
   app.use((req, res, next) => {
@@ -368,7 +369,7 @@ export function createApp(
     if (!isMailAvailable()) {
       res.status(503).json({
         error:
-          'SMTP email delivery is not configured on the server, so the 6-digit verification OTP could not be sent. Configure SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM.',
+          'Resend email delivery is not configured on the server, so the 6-digit verification OTP could not be sent. Configure RESEND_API_KEY and RESEND_FROM_EMAIL.',
       });
       return;
     }
@@ -401,11 +402,15 @@ export function createApp(
 
     try {
       await sendMail(buildLoginOtpEmail(user.email, otp, Math.round(OTP_TTL_MS / 60000)));
-    } catch {
+    } catch (err) {
       db.prepare('DELETE FROM login_otp_challenges WHERE id = ?').run(challengeId);
+      if (err instanceof ResendDeliveryError) {
+        res.status(err.httpStatus).json({error: err.safeMessage});
+        return;
+      }
       res.status(502).json({
         error:
-          'Credentials verified, but sending the 6-digit verification OTP email failed. Verify your SMTP settings and App Password.',
+          'Credentials verified, but sending the 6-digit verification OTP email failed. Verify RESEND_API_KEY and RESEND_FROM_EMAIL.',
       });
       return;
     }
@@ -549,6 +554,7 @@ export function createApp(
 
     if (now < challenge.resend_available_at) {
       const waitSeconds = Math.max(1, Math.ceil((challenge.resend_available_at - now) / 1000));
+      res.setHeader('Retry-After', String(waitSeconds));
       res.status(429).json({
         error: `Please wait ${waitSeconds}s before requesting another verification code.`,
         retryAfterSeconds: waitSeconds,
@@ -557,7 +563,10 @@ export function createApp(
     }
 
     if (!isMailAvailable()) {
-      res.status(503).json({error: 'SMTP email delivery is not configured on the server.'});
+      res.status(503).json({
+        error:
+          'Resend email delivery is not configured on the server. Set RESEND_API_KEY and RESEND_FROM_EMAIL.',
+      });
       return;
     }
 
@@ -572,8 +581,25 @@ export function createApp(
 
     try {
       await sendMail(buildLoginOtpEmail(challenge.email, newOtp, Math.round(OTP_TTL_MS / 60000)));
-    } catch {
-      res.status(502).json({error: 'Failed to resend OTP email. Verify SMTP credentials.'});
+    } catch (err) {
+      db.prepare(
+        `UPDATE login_otp_challenges
+         SET otp_hash = ?, attempts = ?, expires_at = ?, resend_available_at = ?
+         WHERE id = ?`
+      ).run(
+        challenge.otp_hash,
+        challenge.attempts,
+        challenge.expires_at,
+        challenge.resend_available_at,
+        challenge.id
+      );
+      if (err instanceof ResendDeliveryError) {
+        res.status(err.httpStatus).json({error: err.safeMessage});
+        return;
+      }
+      res.status(502).json({
+        error: 'Failed to resend OTP email via Resend. Verify RESEND_API_KEY and RESEND_FROM_EMAIL.',
+      });
       return;
     }
 
@@ -738,10 +764,10 @@ export function createApp(
     const configured = isMailAvailable();
     res.json({
       configured,
-      method: configured ? 'smtp' : 'none',
+      method: configured ? 'resend' : 'none',
       message: configured
-        ? 'Verified SMTP email recovery is active for existing authorized accounts.'
-        : 'Password recovery email is disabled until SMTP credentials are configured on the server. No fixed or public recovery password exists.',
+        ? 'Verified Resend email recovery is active for existing authorized accounts.'
+        : 'Password recovery email is disabled until RESEND_API_KEY and RESEND_FROM_EMAIL are configured on the server. No fixed or public recovery password exists.',
     });
   });
 
@@ -750,7 +776,7 @@ export function createApp(
       res.status(503).json({
         configured: false,
         error:
-          'Password recovery is disabled until SMTP email delivery is configured on the server.',
+          'Password recovery is disabled until RESEND_API_KEY and RESEND_FROM_EMAIL are configured on the server.',
       });
       return;
     }
@@ -783,9 +809,13 @@ export function createApp(
 
       try {
         await sendMail(buildPasswordResetOtpEmail(user.email, otp, Math.round(OTP_TTL_MS / 60000)));
-      } catch {
+      } catch (err) {
         db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').run(resetId);
-        res.status(502).json({error: 'Unable to send password recovery email.'});
+        if (err instanceof ResendDeliveryError) {
+          res.status(err.httpStatus).json({error: err.safeMessage});
+          return;
+        }
+        res.status(502).json({error: 'Unable to send password recovery email via Resend.'});
         return;
       }
     }
@@ -841,15 +871,25 @@ export function createApp(
     }
 
     const nextHash = await hashPassword(newPassword);
-    db.transaction(() => {
-      db.prepare('UPDATE password_reset_tokens SET used_at = ? WHERE id = ?').run(now, tokenRow.id);
-      db.prepare('UPDATE admin_users SET password_hash = ?, updated_at = ? WHERE id = ?').run(
-        nextHash,
-        new Date().toISOString(),
-        user.id
-      );
-      deleteAllUserSessions(db, user.id);
-    })();
+    try {
+      db.transaction(() => {
+        const consumed = db
+          .prepare('UPDATE password_reset_tokens SET used_at = ? WHERE id = ? AND used_at IS NULL')
+          .run(now, tokenRow.id);
+        if (consumed.changes === 0) {
+          throw new Error('RESET_TOKEN_ALREADY_USED');
+        }
+        db.prepare('UPDATE admin_users SET password_hash = ?, updated_at = ? WHERE id = ?').run(
+          nextHash,
+          new Date().toISOString(),
+          user.id
+        );
+        deleteAllUserSessions(db, user.id);
+      })();
+    } catch {
+      res.status(401).json({error: 'Invalid or expired password reset code.'});
+      return;
+    }
 
     res.json({ok: true, message: 'Password reset successfully. Sign in with your new password.'});
   });
@@ -1123,7 +1163,7 @@ export function createApp(
       if (!isMailAvailable()) {
         res.status(503).json({
           error:
-            'SMTP email delivery is required to send a verification OTP to the replacement Main Admin email.',
+            'Resend email delivery is required to send a verification OTP to the replacement Main Admin email.',
         });
         return;
       }
@@ -1155,8 +1195,12 @@ export function createApp(
         await sendMail(
           buildOwnerTransferOtpEmail(newEmail, session.email, otp, Math.round(OTP_TTL_MS / 60000))
         );
-      } catch {
+      } catch (err) {
         db.prepare('DELETE FROM owner_email_changes WHERE id = ?').run(challengeId);
+        if (err instanceof ResendDeliveryError) {
+          res.status(err.httpStatus).json({error: err.safeMessage});
+          return;
+        }
         res.status(502).json({
           error: 'Failed to send verification OTP to the replacement email address.',
         });

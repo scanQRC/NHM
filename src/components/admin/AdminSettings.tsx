@@ -701,7 +701,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({
                 <div className="p-3.5 rounded-lg bg-[#ECFDF5] border border-emerald-200 space-y-2 text-xs">
                   <div className="font-semibold text-[#102B50]">
                     One-Time Staff Invite Created{' '}
-                    {inviteEmailSent ? '(Email sent via SMTP)' : '(Share this private link securely)'}
+                    {inviteEmailSent
+                      ? '(Email sent via Resend)'
+                      : '(Share this private link securely)'}
                   </div>
                   <div className="flex items-center gap-2">
                     <input
