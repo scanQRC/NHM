@@ -12,7 +12,69 @@ export type AdminSection =
 export type AppView =
   | {area: 'public'; page: PublicRoute}
   | {area: 'admin-login'}
+  | {area: 'admin-setup'}
+  | {area: 'admin-invite'; token: string}
   | {area: 'admin'; section: AdminSection};
+
+export interface StaffPermissions {
+  canViewRecords: boolean;
+  canAddRecords: boolean;
+  canDeleteRecords: boolean;
+  canPrintRecords: boolean;
+  canExportBackup: boolean;
+  canManageSettings: boolean;
+}
+
+export interface AuthenticatedAdminUser {
+  id: string;
+  username: string;
+  email: string;
+  displayName: string;
+  role: 'main_admin' | 'staff';
+  permissions: StaffPermissions;
+  isTemporaryTestEmail?: boolean;
+}
+
+export interface SetupStatusResponse {
+  setupRequired: boolean;
+  setupTokenRequired: boolean;
+  mailConfigured: boolean;
+  publicSignupEnabled: false;
+  staffInviteSupported: boolean;
+}
+
+export interface LoginOtpChallengeResponse {
+  otpRequired: true;
+  challengeId: string;
+  maskedEmail: string;
+  expiresInSeconds: number;
+}
+
+export interface RecoveryStatusResponse {
+  configured: boolean;
+  method: 'smtp' | 'none';
+  message: string;
+}
+
+export interface StaffAccountSummary {
+  id: string;
+  username: string;
+  email: string;
+  displayName: string;
+  role: 'main_admin' | 'staff';
+  isActive: boolean;
+  permissions: StaffPermissions;
+  createdAt: string;
+}
+
+export interface PendingStaffInvite {
+  id: string;
+  email: string;
+  displayName: string;
+  permissions: StaffPermissions;
+  expiresAt: number;
+  createdAt: string;
+}
 
 export interface PrescriptionRecord {
   id: string;

@@ -1,10 +1,11 @@
 import React, {useMemo} from 'react';
 import {Archive, Eye, FolderKanban, Printer, Upload} from 'lucide-react';
 import {formatArchiveMonthLabel} from '../../data/nmhData';
-import {AdminSection, PrescriptionRecord} from '../../types/nmh';
+import {AdminSection, AuthenticatedAdminUser, PrescriptionRecord} from '../../types/nmh';
 import {NMHLogo} from '../common/NMHLogo';
 
 interface AdminDashboardProps {
+  user: AuthenticatedAdminUser;
   records: PrescriptionRecord[];
   onNavigateSection: (section: AdminSection) => void;
   onSelectRecordForPrint: (recordId: string) => void;
@@ -13,6 +14,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  user,
   records,
   onNavigateSection,
   onSelectRecordForPrint,
@@ -25,12 +27,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       months.set(rec.archiveMonth, (months.get(rec.archiveMonth) ?? 0) + 1);
     });
     const sortedMonths = Array.from(months.entries()).sort((a, b) => b[0].localeCompare(a[0]));
-    const latestMonth = sortedMonths[0]?.[0] ?? '2026-11';
+    const latestMonth = sortedMonths[0]?.[0] ?? '';
     const latestCount = sortedMonths[0]?.[1] ?? 0;
 
     return {
       totalRecords: records.length,
-      latestMonthLabel: formatArchiveMonthLabel(latestMonth),
+      latestMonthLabel: latestMonth ? formatArchiveMonthLabel(latestMonth) : 'Current Month',
       latestMonthCount: latestCount,
       monthFolderCount: sortedMonths.length,
       monthlyDistribution: sortedMonths.slice(0, 6).reverse(),
@@ -41,18 +43,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Honest UI Preview Notice with NMHLogo */}
+      {/* Authenticated Admin Header Banner */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <NMHLogo variant="default" size="md" />
           <div className="space-y-1 sm:border-l sm:border-slate-200 sm:pl-4">
             <div className="text-xs font-medium text-[#1769D2]">
-              Private Prescription Photo Archive · UI Interface Preview
+              Private Prescription Photo Archive · Signed in as {user.displayName} (@
+              {user.username})
             </div>
             <p className="text-sm text-slate-600">
-              Showing local preview records in browser memory. Server storage, database persistence,
-              and scheduled backups are not connected yet. Photos are stored strictly as image
-              records without OCR.
+              Protected server-backed dispensary archive. Prescription photos are stored strictly as
+              image records without OCR or medicine reading.
             </p>
           </div>
         </div>
@@ -66,14 +68,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </button>
       </div>
 
-      {/* 4 KPI Summary Blocks (Single-level elevation, tabular numerals) */}
+      {/* 4 KPI Summary Blocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white border border-slate-200 rounded-xl p-5">
           <div className="text-xs font-medium text-slate-500">Total Archived Photos</div>
           <div className="mt-2 font-display text-3xl font-bold text-[#102B50] tabular-nums">
             {stats.totalRecords}
           </div>
-          <div className="mt-1 text-xs text-slate-500">Preview records in current session</div>
+          <div className="mt-1 text-xs text-slate-500">Stored in private server database</div>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5">
@@ -120,27 +122,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </button>
           </div>
 
-          <div className="space-y-3 pt-2">
-            {stats.monthlyDistribution.map(([monthKey, count]) => {
-              const widthPct = Math.max(12, Math.round((count / maxBar) * 100));
-              return (
-                <div key={monthKey} className="grid grid-cols-12 items-center gap-3 text-sm">
-                  <div className="col-span-4 sm:col-span-3 text-xs font-medium text-slate-700 truncate">
-                    {formatArchiveMonthLabel(monthKey)}
+          {stats.monthlyDistribution.length === 0 ? (
+            <p className="text-sm text-slate-500 py-4">
+              No monthly folders yet. Upload your first prescription photograph to create the active
+              month register.
+            </p>
+          ) : (
+            <div className="space-y-3 pt-2">
+              {stats.monthlyDistribution.map(([monthKey, count]) => {
+                const widthPct = Math.max(12, Math.round((count / maxBar) * 100));
+                return (
+                  <div key={monthKey} className="grid grid-cols-12 items-center gap-3 text-sm">
+                    <div className="col-span-4 sm:col-span-3 text-xs font-medium text-slate-700 truncate">
+                      {formatArchiveMonthLabel(monthKey)}
+                    </div>
+                    <div className="col-span-6 sm:col-span-7 h-6 bg-[#F4F7FB] rounded-md overflow-hidden">
+                      <div
+                        className="h-full bg-[#1769D2] rounded-md transition-all duration-200"
+                        style={{width: `${widthPct}%`}}
+                      />
+                    </div>
+                    <div className="col-span-2 text-right font-mono-tabular text-xs font-semibold text-[#102B50]">
+                      {count}
+                    </div>
                   </div>
-                  <div className="col-span-6 sm:col-span-7 h-6 bg-[#F4F7FB] rounded-md overflow-hidden">
-                    <div
-                      className="h-full bg-[#1769D2] rounded-md transition-all duration-200"
-                      style={{width: `${widthPct}%`}}
-                    />
-                  </div>
-                  <div className="col-span-2 text-right font-mono-tabular text-xs font-semibold text-[#102B50]">
-                    {count}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between space-y-5">
@@ -210,59 +219,73 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#F4F7FB] border-b border-slate-200 text-xs font-semibold text-slate-600">
-                <th className="py-3 px-4">Record ID</th>
-                <th className="py-3 px-4">Patient Name</th>
-                <th className="py-3 px-4">Phone</th>
-                <th className="py-3 px-4">Prescribing Doctor</th>
-                <th className="py-3 px-4">Visit Date</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {records.slice(0, 6).map((rec) => (
-                <tr key={rec.id} className="hover:bg-[#F4F7FB]/80 transition-colors">
-                  <td className="py-2.5 px-4 font-mono-tabular text-xs font-medium text-[#1769D2] whitespace-nowrap">
-                    {rec.recordNumber}
-                  </td>
-                  <td className="py-2.5 px-4 font-medium text-[#102B50] whitespace-nowrap">
-                    {rec.patientName}
-                  </td>
-                  <td className="py-2.5 px-4 font-mono-tabular text-xs text-slate-600 whitespace-nowrap">
-                    {rec.phone}
-                  </td>
-                  <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{rec.doctorName}</td>
-                  <td className="py-2.5 px-4 font-mono-tabular text-xs text-slate-600 whitespace-nowrap">
-                    {rec.visitDate}
-                  </td>
-                  <td className="py-2.5 px-4 text-right whitespace-nowrap">
-                    <div className="inline-flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onSelectRecordForView(rec)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#102B50] bg-slate-100 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onSelectRecordForPrint(rec.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1769D2] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
-                      >
-                        <Printer className="w-3.5 h-3.5" />
-                        <span>Print</span>
-                      </button>
-                    </div>
-                  </td>
+        {records.length === 0 ? (
+          <div className="p-10 text-center space-y-3">
+            <p className="text-sm font-medium text-[#102B50]">
+              No prescription photo records stored yet.
+            </p>
+            <p className="text-xs text-slate-500">
+              Use &ldquo;Add Prescription Photo&rdquo; to upload and archive your first prescription
+              record.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#F4F7FB] border-b border-slate-200 text-xs font-semibold text-slate-600">
+                  <th className="py-3 px-4">Record ID</th>
+                  <th className="py-3 px-4">Patient Name</th>
+                  <th className="py-3 px-4">Phone</th>
+                  <th className="py-3 px-4">Prescribing Doctor</th>
+                  <th className="py-3 px-4">Visit Date</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {records.slice(0, 6).map((rec) => (
+                  <tr key={rec.id} className="hover:bg-[#F4F7FB]/80 transition-colors">
+                    <td className="py-2.5 px-4 font-mono-tabular text-xs font-medium text-[#1769D2] whitespace-nowrap">
+                      {rec.recordNumber}
+                    </td>
+                    <td className="py-2.5 px-4 font-medium text-[#102B50] whitespace-nowrap">
+                      {rec.patientName}
+                    </td>
+                    <td className="py-2.5 px-4 font-mono-tabular text-xs text-slate-600 whitespace-nowrap">
+                      {rec.phone}
+                    </td>
+                    <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">
+                      {rec.doctorName}
+                    </td>
+                    <td className="py-2.5 px-4 font-mono-tabular text-xs text-slate-600 whitespace-nowrap">
+                      {rec.visitDate}
+                    </td>
+                    <td className="py-2.5 px-4 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onSelectRecordForView(rec)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#102B50] bg-slate-100 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onSelectRecordForPrint(rec.id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#1769D2] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors cursor-pointer"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>Print</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,22 +1,20 @@
 import React, {useState} from 'react';
-import {Camera, Upload, X} from 'lucide-react';
-import {NMH_IMAGES} from '../../data/nmhData';
+import {Upload, X} from 'lucide-react';
+import {ApiError, createAdminRecord} from '../../services/api';
 import {PrescriptionRecord} from '../../types/nmh';
 
 interface AddPrescriptionModalProps {
   isOpen: boolean;
-  staffId: string;
-  nextSequenceNumber: number;
   onClose: () => void;
   onAddRecord: (record: PrescriptionRecord) => void;
+  onUnauthorized: () => void;
 }
 
 export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
   isOpen,
-  staffId,
-  nextSequenceNumber,
   onClose,
   onAddRecord,
+  onUnauthorized,
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const [patientName, setPatientName] = useState('');
@@ -24,8 +22,9 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
   const [doctorName, setDoctorName] = useState('');
   const [visitDate, setVisitDate] = useState(today);
   const [notes, setNotes] = useState('');
-  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string>('');
+  const [photoDataUrl, setPhotoDataUrl] = useState<string>('');
   const [photoFilename, setPhotoFilename] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
@@ -37,19 +36,22 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
       setError('Please select a valid image file (JPG, PNG, or WEBP).');
       return;
     }
-    const objectUrl = URL.createObjectURL(file);
-    setPhotoPreviewUrl(objectUrl);
-    setPhotoFilename(file.name);
-    setError('');
+    if (file.size > 8 * 1024 * 1024) {
+      setError('Image size must be under 8 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setPhotoDataUrl(reader.result);
+        setPhotoFilename(file.name);
+        setError('');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleUseSamplePhoto = () => {
-    setPhotoPreviewUrl(NMH_IMAGES.sampleRxOne);
-    setPhotoFilename('sample_counter_prescription.jpg');
-    setError('');
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientName.trim()) {
       setError('Patient name is required.');
@@ -59,39 +61,41 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
       setError('Contact phone number is required.');
       return;
     }
-    if (!photoPreviewUrl) {
-      setError('Please select a prescription photograph or use the sample preview image.');
+    if (!photoDataUrl) {
+      setError('Please select or capture a prescription photograph.');
       return;
     }
 
-    const archiveMonth = visitDate.slice(0, 7) || today.slice(0, 7);
-    const monthDigits = archiveMonth.replace('-', '').slice(2);
-    const seq = String(nextSequenceNumber).padStart(4, '0');
-    const newRecord: PrescriptionRecord = {
-      id: `rec-${Date.now()}`,
-      recordNumber: `NMH-${monthDigits}-${seq}`,
-      patientName: patientName.trim(),
-      phone: phone.trim(),
-      doctorName: doctorName.trim() || 'Not Specified',
-      visitDate,
-      archiveMonth,
-      photoUrl: photoPreviewUrl,
-      photoFilename: photoFilename || `rx_${seq}.jpg`,
-      notes: notes.trim(),
-      loggedBy: staffId,
-      createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
-    };
-
-    onAddRecord(newRecord);
-    setPatientName('');
-    setPhone('');
-    setDoctorName('');
-    setVisitDate(today);
-    setNotes('');
-    setPhotoPreviewUrl('');
-    setPhotoFilename('');
+    setSubmitting(true);
     setError('');
-    onClose();
+    try {
+      const record = await createAdminRecord({
+        patientName: patientName.trim(),
+        phone: phone.trim(),
+        doctorName: doctorName.trim() || 'Not Specified',
+        visitDate,
+        notes: notes.trim(),
+        photoUrl: photoDataUrl,
+        photoFilename: photoFilename || 'prescription.jpg',
+      });
+      onAddRecord(record);
+      setPatientName('');
+      setPhone('');
+      setDoctorName('');
+      setVisitDate(today);
+      setNotes('');
+      setPhotoDataUrl('');
+      setPhotoFilename('');
+      onClose();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        onUnauthorized();
+        return;
+      }
+      setError(err instanceof Error ? err.message : 'Failed to save prescription record.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -108,7 +112,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
               Add Prescription Photo Record
             </h2>
             <p className="text-xs text-slate-500">
-              UI preview only · Stored as visual image record without OCR or medicine reading.
+              Stored securely in private dispensary database as a visual photo record (no OCR).
             </p>
           </div>
           <button
@@ -122,16 +126,15 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} noValidate className="p-6 space-y-5">
-          {/* Photo Selector */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-[#102B50]">
               Prescription Photograph <span className="text-red-600">*</span>
             </label>
 
-            {photoPreviewUrl ? (
+            {photoDataUrl ? (
               <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 space-y-3">
                 <img
-                  src={photoPreviewUrl}
+                  src={photoDataUrl}
                   alt="Selected prescription preview"
                   className="max-h-56 mx-auto rounded object-contain"
                 />
@@ -140,7 +143,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setPhotoPreviewUrl('');
+                      setPhotoDataUrl('');
                       setPhotoFilename('');
                     }}
                     className="text-red-600 font-medium hover:underline cursor-pointer"
@@ -151,8 +154,8 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
               </div>
             ) : (
               <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center space-y-3 bg-slate-50">
-                <div className="flex justify-center gap-3">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1E40AF] rounded-lg transition-colors cursor-pointer min-h-[42px]">
+                <div className="flex justify-center">
+                  <label className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#1769D2] hover:bg-[#1256B0] rounded-lg transition-colors cursor-pointer min-h-[42px]">
                     <Upload className="w-4 h-4" />
                     <span>Choose Photo / Camera</span>
                     <input
@@ -163,14 +166,6 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                       className="sr-only"
                     />
                   </label>
-                  <button
-                    type="button"
-                    onClick={handleUseSamplePhoto}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-medium text-[#102B50] bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer min-h-[42px]"
-                  >
-                    <Camera className="w-4 h-4 text-[#059669]" />
-                    <span>Use Sample Photo</span>
-                  </button>
                 </div>
                 <p className="text-xs text-slate-500">
                   Supports desktop JPG/PNG selection (Windows 10/11) and mobile camera capture
@@ -193,7 +188,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                 type="text"
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
-                placeholder="e.g. Meera Deshpande"
+                placeholder="e.g. Rajesh Kumar"
                 className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 min-h-[42px]"
               />
             </div>
@@ -210,7 +205,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="e.g. 98110-22401"
+                placeholder="e.g. 9419294905"
                 className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 min-h-[42px]"
               />
             </div>
@@ -229,7 +224,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
                 type="text"
                 value={doctorName}
                 onChange={(e) => setDoctorName(e.target.value)}
-                placeholder="e.g. Dr. R. Subramanian"
+                placeholder="e.g. Dr. S. Sharma"
                 className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 min-h-[42px]"
               />
             </div>
@@ -260,7 +255,7 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Optional filing remark (e.g. Monthly refill counter copy)..."
+              placeholder="Optional filing remark..."
               className="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300"
             />
           </div>
@@ -281,9 +276,10 @@ export const AddPrescriptionModal: React.FC<AddPrescriptionModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-lg transition-colors min-h-[42px] cursor-pointer"
+              disabled={submitting}
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-[#12A66A] hover:bg-[#0F8F5B] disabled:opacity-60 rounded-lg transition-colors min-h-[42px] cursor-pointer"
             >
-              Save to Session Archive
+              {submitting ? 'Saving...' : 'Save Record'}
             </button>
           </div>
         </form>
