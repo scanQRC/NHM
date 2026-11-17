@@ -32,7 +32,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-[72px] flex items-center justify-between gap-3 sm:gap-6 lg:gap-8">
         {/* Zone 1: Single-line NMH Brand Logo */}
         <a
           href="#home"
@@ -40,7 +40,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
             e.preventDefault();
             handleNavClick('home');
           }}
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769D2] rounded shrink-0"
+          className="min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769D2] rounded shrink-0"
           aria-label="National Medical Hall Home"
         >
           <NMHLogo variant="default" size="md" />
@@ -49,7 +49,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
         {/* Zone 2: 5 concise single-line navigation links */}
         <nav
           aria-label="Primary Navigation"
-          className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600"
+          className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-600"
         >
           {NAV_ITEMS.map((item) => {
             const isActive = currentPage === item.id;
@@ -61,7 +61,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                   e.preventDefault();
                   handleNavClick(item.id);
                 }}
-                className={`relative py-1 whitespace-nowrap shrink-0 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769D2] rounded ${
+                className={`relative py-1.5 whitespace-nowrap shrink-0 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769D2] rounded ${
                   isActive
                     ? 'text-[#102B50] font-semibold'
                     : 'text-slate-600 hover:text-[#1769D2]'
@@ -103,7 +103,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-1">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3.5 space-y-1.5 shadow-md">
           {NAV_ITEMS.map((item) => {
             const isActive = currentPage === item.id;
             return (
@@ -111,17 +111,20 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium min-h-[44px] transition-colors cursor-pointer ${
+                className={`w-full text-left px-3.5 py-3 rounded-lg text-sm font-medium min-h-[44px] flex items-center justify-between transition-colors cursor-pointer ${
                   isActive
                     ? 'bg-[#F4F7FB] text-[#102B50] font-semibold'
                     : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {isActive && (
+                  <span aria-hidden="true" className="w-1.5 h-5 rounded-full bg-[#12A66A]" />
+                )}
               </button>
             );
           })}
-          <div className="pt-2 border-t border-slate-100">
+          <div className="sm:hidden pt-2.5 mt-1 border-t border-slate-100">
             <button
               type="button"
               onClick={() => {

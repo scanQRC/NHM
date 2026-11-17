@@ -478,7 +478,7 @@ export default function App() {
 
   // Public Website Layout (completely separate from Admin System)
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F7FB] text-[#0F172A]">
+    <div className="min-h-screen flex flex-col bg-[#F4F7FB] text-[#0F172A] overflow-x-clip">
       <PublicHeader
         currentPage={view.page}
         onNavigate={navigatePublic}
